@@ -1,5 +1,6 @@
 from pyspark.sql.datasource import DataSource, DataSourceReader
 from pyspark.sql.types import StructType
+import os
 
 class FakeDataSource(DataSource):
     """
@@ -35,3 +36,17 @@ class FakeDataSourceReader(DataSourceReader):
                 value = getattr(fake, field.name)()
                 row.append(value)
             yield tuple(row)
+
+def register_fake_data_source():
+    if os.getenv("IS_SERVERLESS") == "TRUE":
+        raise RuntimeError(
+            "Error: This data source can only be executed in a non-serverless context. "
+            "Please attach the notebook to a traditional compute cluster and try again."
+        )
+    
+    spark = SparkSession.getActiveSession()
+    try:
+        spark.dataSource.register(FakeDataSource)
+        print("Custom data source 'fake' registered successfully.")
+    except AttributeError:
+        print("Error registering custom data source: PySpark custom data sources are not supported in this environment.")            

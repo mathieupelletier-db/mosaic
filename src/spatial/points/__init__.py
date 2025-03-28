@@ -1,11 +1,9 @@
 __all__ = [
     "FakeDataSourceReader",
-    "FakeDataSource"
+    "FakeDataSource",
+    "register_fake_data_source"
 ]
 
-from .las_laz_reader import *
+from .ply_reader import *
 
-from pyspark.sql import SparkSession
-
-spark = SparkSession.getActiveSession()
-spark.dataSource.register(FakeDataSource)
+register_fake_data_source()

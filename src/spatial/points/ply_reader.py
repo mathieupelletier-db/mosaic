@@ -1,6 +1,7 @@
 from pyspark.sql.datasource import DataSource, DataSourceReader
 from pyspark.sql.types import StructType
 import os
+from pyspark.sql import SparkSession
 
 class FakeDataSource(DataSource):
     """

@@ -20,18 +20,18 @@ class FakeDataSource(DataSource):
 
 class FakeDataSourceReader(DataSourceReader):
 
-def __init__(self, schema, options):
-    self.schema: StructType = schema
-    self.options = options
+    def __init__(self, schema, options):
+        self.schema: StructType = schema
+        self.options = options
 
-def read(self, partition):
-    from faker import Faker
-    fake = Faker()
-    # Note: every value in this `self.options` dictionary is a string.
-    num_rows = int(self.options.get("numRows", 3))
-    for _ in range(num_rows):
-        row = []
-        for field in self.schema.fields:
-            value = getattr(fake, field.name)()
-            row.append(value)
-        yield tuple(row)
+    def read(self, partition):
+        from faker import Faker
+        fake = Faker()
+        # Note: every value in this `self.options` dictionary is a string.
+        num_rows = int(self.options.get("numRows", 3))
+        for _ in range(num_rows):
+            row = []
+            for field in self.schema.fields:
+                value = getattr(fake, field.name)()
+                row.append(value)
+            yield tuple(row)

@@ -1,9 +1,9 @@
 __all__ = [
-    "FakeDataSourceReader",
-    "FakeDataSource",
-    "register_fake_data_source"
+    "LASToGeometryDataSourceReader",
+    "LASToGeometryDataSource",
+    "register_las_data_source"
 ]
 
-from .ply_reader import *
+from .las_reader import *
 
-register_fake_data_source()
+register_las_data_source()

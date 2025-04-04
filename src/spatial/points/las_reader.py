@@ -1,6 +1,7 @@
 from pathlib import Path
 from pyspark.sql import SparkSession
 import laspy
+import numpy as np
 from typing import Generator, Optional, Tuple, Dict
 import os
 
@@ -82,7 +83,12 @@ class LASToGeometryDataSourceReader(DataSourceReader):
 
             for points in f.chunk_iterator(10000):
                 for point in points:
-                    yield (point.x, point.y, point.z, point.intensity, tags)
+                    x_float = np.array(point.x).astype(float)
+                    y_float = np.array(point.y).astype(float)
+                    z_float = np.array(point.z).astype(float)
+                    #print(x_float[0], y_float[0], z_float[0])
+
+                    yield (x_float, y_float, z_float, point.intensity, tags)
 
         #yield (element.id, element.type_str(), geometry, tags)
 

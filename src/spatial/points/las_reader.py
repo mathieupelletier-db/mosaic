@@ -77,7 +77,7 @@ class LASToGeometryDataSourceReader(DataSourceReader):
 
         # Handle file vs directory
 
-        with laspy.open(path) as f:
+        with laspy.open(input_path) as f:
             tags: Dict[str, str] = {}
 
             for points in f.chunk_iterator(10000):

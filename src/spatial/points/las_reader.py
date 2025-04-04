@@ -75,6 +75,8 @@ class LASToGeometryDataSourceReader(DataSourceReader):
         if not input_path:
             raise ValueError("The 'path' option is required.")
 
+        # Handle file vs directory
+
         with laspy.open(path) as f:
             tags: Dict[str, str] = {}
 
@@ -131,7 +133,7 @@ point format 0
             StructField("tags", MapType(StringType(), StringType()), True)
         ])
 
-    def reader(self, schema: StructType) -> PBFToGeometryDataSourceReader:
+    def reader(self, schema: StructType) -> LASToGeometryDataSourceReader:
         """
         Create a data source reader for reading the PBF file.
 

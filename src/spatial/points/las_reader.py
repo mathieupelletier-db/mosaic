@@ -15,19 +15,19 @@ except ImportError as e:
 
 class LASToGeometryDataSourceReader(DataSourceReader):
     """
-    Data source reader to read LAS/LAZ files and convert them to geometries.
+    Data source reader to read LAS/LAZ files and convert them to dataframe.
 
     This class processes LAS/LAZ files to extract geometries (e.g., points, lines, or polygons)
     and associated metadata (tags). The output can be configured to include geometries in
     Well-Known Text (WKT), Well-Known Binary (WKB), or GeoJSON formats.
 
     Attributes:
-        schema (StructType): The schema of the output data, including fields for ID, type, geometry, and tags.
+        schema (StructType): The schema of the output data, including fields for x, y, z, intensity and headers.
         options (dict): Configuration options to customize the data reader.
 
     Options:
         - 1,2,3
-        - iterator size (or not)
+        - chunk size (or not)
         - point format 0..9
         - `path` (str): The file path to the input PBF file. **Required**.
         - `geometryType` (str): The output geometry format. Supported values:
@@ -77,20 +77,23 @@ class LASToGeometryDataSourceReader(DataSourceReader):
             raise ValueError("The 'path' option is required.")
 
         # Handle file vs directory
+        #las = laspy.read(input_path)
+#        for filename in os.listdir(input_dir):
+ #   if filename.endswith('.las'):
+  #      input_path = os.path.join(input_dir, filename)
 
         with laspy.open(input_path) as f:
             tags: Dict[str, str] = {}
+            chunk_size = 1000000  # Adjusted chunk size
 
-            for points in f.chunk_iterator(10000):
-                for point in points:
-                    x_float = np.array(point.x).astype(float)
-                    y_float = np.array(point.y).astype(float)
-                    z_float = np.array(point.z).astype(float)
-                    #print(x_float[0], y_float[0], z_float[0])
-
-                    yield (x_float, y_float, z_float, point.intensity, tags)
-
-        #yield (element.id, element.type_str(), geometry, tags)
+            #points_list = []  # Accumulate points in batches
+            for points in f.chunk_iterator(chunk_size):
+                x_float = np.array(points.x).astype(float)
+                y_float = np.array(points.y).astype(float)
+                z_float = np.array(points.z).astype(float)
+                
+                for x, y, z, intensity in zip(x_float, y_float, z_float, points.intensity):
+                    yield (x, y, z, intensity, tags)
 
 class LASToGeometryDataSource(DataSource):
     """

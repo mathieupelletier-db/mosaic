@@ -71,32 +71,26 @@ class LASToGeometryDataSourceReader(DataSourceReader):
 
         with laspy.open(input_path) as f:
 
-            # TODO: perform scaling here instead of using already scaled values
+            # TODO: test performance of using scaled coords vs calculating them on the fly
 
             for points in f.chunk_iterator(chunk_size):
                 x_float = np.array(points.x).astype(float)
                 y_float = np.array(points.y).astype(float)
                 z_float = np.array(points.z).astype(float)
                 
-                # if gps_time not available yield null
+                # Check if the 'gps_time' field is present
+                gps_time = points.gps_time if hasattr(points, 'gps_time') else [None] * len(x_float)
+                red = points.red if hasattr(points, 'red') else [None] * len(x_float)
+                green = points.green if hasattr(points, 'green') else [None] * len(x_float)
+                blue = points.blue if hasattr(points, 'blue') else [None] * len(x_float)
 
-                # Check if the 'green' field is present in the 'las' object
-                if hasattr(las, 'gps_time') and hasattr(las, 'red'):
-                    for point in zip(x_float, y_float, z_float, points.intensity, points.return_number, points.number_of_returns, points.scan_direction_flag, points.edge_of_flight_line,   points.classification, points.synthetic, points.key_point, points.withheld, points.scan_angle_rank, points.user_data, points.point_source_id, points.gps_time, points.red, points.green, points.blue):
-                        yield point
-
-                elif hasattr(las, 'gps_time'):
-                    for point in zip(x_float, y_float, z_float, points.intensity, points.return_number, points.number_of_returns, points.scan_direction_flag, points.edge_of_flight_line,   points.classification, points.synthetic, points.key_point, points.withheld, points.scan_angle_rank, points.user_data, points.point_source_id, points.gps_time):
-                        yield point
-
-                else:
-                    for point in zip(x_float, y_float, z_float, points.intensity, points.return_number, points.number_of_returns, points.scan_direction_flag, points.edge_of_flight_line,   points.classification, points.synthetic, points.key_point, points.withheld, points.scan_angle_rank, points.user_data, points.point_source_id):
-                        yield point
-
-                #for x, y, z, intensity in zip(x_float, y_float, z_float, points.intensity, points.return_number, points.number_of_returns, points.scan_direction_flag, points.#edge_of_flight_line, points.classification, points.synthetic, points.key_point, points.withheld, points.scan_angle_rank, points.user_data, points.point_source_id, points.#gps_time, points.red, points.green, points.blue):
-                #    yield (x, y, z, intensity, return_number, number_of_returns, scan_direction_flag, edge_of_flight_line, classification, synthetic, key_point, withheld, #scan_angle_rank, user_data, point_source_id, gps_time, red, green, blue)
-
-                # R,G,B not available yield null
+                for point in zip(
+                    x_float, y_float, z_float, points.intensity, points.return_number, points.number_of_returns,
+                    points.scan_direction_flag, points.edge_of_flight_line, points.classification, points.synthetic,
+                    points.key_point, points.withheld, points.scan_angle_rank, points.user_data, points.point_source_id,
+                    gps_time, red, green, blue
+                ):
+                    yield point
 
 class LASToGeometryDataSource(DataSource):
     """
